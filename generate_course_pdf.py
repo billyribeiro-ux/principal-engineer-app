@@ -152,47 +152,38 @@ def get_styles():
         alignment=TA_CENTER,
     ))
 
-    # Heading styles
-    styles.add(ParagraphStyle(
-        name='Heading1',
-        fontName='Helvetica-Bold',
-        fontSize=22,
-        leading=28,
-        textColor=COLORS['primary'],
-        spaceBefore=24,
-        spaceAfter=12,
-        keepWithNext=True,
-    ))
-    styles.add(ParagraphStyle(
-        name='Heading2',
-        fontName='Helvetica-Bold',
-        fontSize=17,
-        leading=22,
-        textColor=COLORS['accent'],
-        spaceBefore=18,
-        spaceAfter=8,
-        keepWithNext=True,
-    ))
-    styles.add(ParagraphStyle(
-        name='Heading3',
-        fontName='Helvetica-Bold',
-        fontSize=13,
-        leading=17,
-        textColor=COLORS['secondary'],
-        spaceBefore=14,
-        spaceAfter=6,
-        keepWithNext=True,
-    ))
-    styles.add(ParagraphStyle(
-        name='Heading4',
-        fontName='Helvetica-Bold',
-        fontSize=11,
-        leading=15,
-        textColor=COLORS['text'],
-        spaceBefore=10,
-        spaceAfter=4,
-        keepWithNext=True,
-    ))
+    # Heading styles (override defaults from getSampleStyleSheet)
+    styles['Heading1'].fontName = 'Helvetica-Bold'
+    styles['Heading1'].fontSize = 22
+    styles['Heading1'].leading = 28
+    styles['Heading1'].textColor = COLORS['primary']
+    styles['Heading1'].spaceBefore = 24
+    styles['Heading1'].spaceAfter = 12
+    styles['Heading1'].keepWithNext = True
+
+    styles['Heading2'].fontName = 'Helvetica-Bold'
+    styles['Heading2'].fontSize = 17
+    styles['Heading2'].leading = 22
+    styles['Heading2'].textColor = COLORS['accent']
+    styles['Heading2'].spaceBefore = 18
+    styles['Heading2'].spaceAfter = 8
+    styles['Heading2'].keepWithNext = True
+
+    styles['Heading3'].fontName = 'Helvetica-Bold'
+    styles['Heading3'].fontSize = 13
+    styles['Heading3'].leading = 17
+    styles['Heading3'].textColor = COLORS['secondary']
+    styles['Heading3'].spaceBefore = 14
+    styles['Heading3'].spaceAfter = 6
+    styles['Heading3'].keepWithNext = True
+
+    styles['Heading4'].fontName = 'Helvetica-Bold'
+    styles['Heading4'].fontSize = 11
+    styles['Heading4'].leading = 15
+    styles['Heading4'].textColor = COLORS['text']
+    styles['Heading4'].spaceBefore = 10
+    styles['Heading4'].spaceAfter = 4
+    styles['Heading4'].keepWithNext = True
 
     # Body text
     styles.add(ParagraphStyle(
@@ -222,18 +213,15 @@ def get_styles():
         alignment=TA_JUSTIFY,
     ))
 
-    # Code styles
-    styles.add(ParagraphStyle(
-        name='Code',
-        fontName='Courier',
-        fontSize=8.5,
-        leading=11.5,
-        textColor=COLORS['text'],
-        leftIndent=8,
-        rightIndent=8,
-        spaceBefore=2,
-        spaceAfter=2,
-    ))
+    # Code styles (Code already exists in getSampleStyleSheet, so modify it)
+    styles['Code'].fontName = 'Courier'
+    styles['Code'].fontSize = 8.5
+    styles['Code'].leading = 11.5
+    styles['Code'].textColor = COLORS['text']
+    styles['Code'].leftIndent = 8
+    styles['Code'].rightIndent = 8
+    styles['Code'].spaceBefore = 2
+    styles['Code'].spaceAfter = 2
     styles.add(ParagraphStyle(
         name='CodeTitle',
         fontName='Helvetica-Bold',
@@ -511,7 +499,7 @@ class ChapterCoverPage(Flowable):
         self.part_info = part_info
 
     def wrap(self, availWidth, availHeight):
-        return (PAGE_WIDTH, PAGE_HEIGHT)
+        return (availWidth, availHeight)
 
     def draw(self):
         canv = self.canv
@@ -571,7 +559,7 @@ class PartCoverPage(Flowable):
         self.subtitle = subtitle
 
     def wrap(self, availWidth, availHeight):
-        return (PAGE_WIDTH, PAGE_HEIGHT)
+        return (availWidth, availHeight)
 
     def draw(self):
         canv = self.canv
@@ -606,7 +594,9 @@ class TitlePage(Flowable):
         Flowable.__init__(self)
 
     def wrap(self, availWidth, availHeight):
-        return (PAGE_WIDTH, PAGE_HEIGHT)
+        self._avail_w = availWidth
+        self._avail_h = availHeight
+        return (availWidth, availHeight)
 
     def draw(self):
         canv = self.canv
@@ -678,6 +668,11 @@ def bullet(text, styles):
     return Paragraph(f"• {text}", styles['BulletText'])
 
 def code_block(code, filename=None, styles=None):
+    # Handle case where styles is passed as filename positionally
+    from reportlab.lib.styles import StyleSheet1
+    if isinstance(filename, StyleSheet1):
+        styles = filename
+        filename = None
     return CodeBlock(code, filename=filename, styles=styles)
 
 def analogy_box(text, styles):
